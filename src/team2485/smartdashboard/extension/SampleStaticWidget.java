@@ -61,7 +61,7 @@ public class SampleStaticWidget extends StaticWidget {
                     } catch (InterruptedException e) { }       	
                 }
             }
-        }, "Static Nyan Render");
+        }, "Widget");
         renderThread.start();
     }
 
