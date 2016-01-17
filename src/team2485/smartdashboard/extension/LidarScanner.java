@@ -27,7 +27,7 @@ public class LidarScanner extends Widget {
 	private Thread renderThread;
 
 	public BooleanProperty threadBooleanProperty = new BooleanProperty(this, "Test", false);
-    public final DoubleProperty distanceProperty = new DoubleProperty(this, "Distance Scale", 0.005);
+    public final DoubleProperty distanceProperty = new DoubleProperty(this, "Distance Scale", 1);
 
 	@Override
 	public void init() {
@@ -55,10 +55,8 @@ public class LidarScanner extends Widget {
 						} else if (prevDistance > 90){
 							prevDistance = 90;
 						}
-						setValue(Math.abs(counter)*3 + "," + prevDistance);
-						//System.out.println(Math.abs(counter)*3 + "," + prevDistance);
 						if (counter != 0){
-							scannerData.setDirection(counter/Math.abs(counter));
+						setValue(counter/Math.abs(counter) + ":" + Math.abs(counter)*3 + "," + prevDistance);
 						}
 					}
 					repaint();
@@ -83,9 +81,10 @@ public class LidarScanner extends Widget {
 	public void setValue(Object arg0) {
 		String newDataLevel1 = (String)(arg0);
 		String [] newDataLevel1Array = newDataLevel1.split(":");
-		for (int i = 0; i < newDataLevel1Array.length; i++) {
+		scannerData.setDirection(Integer.parseInt(newDataLevel1Array[0]));
+		for (int i = 1; i < newDataLevel1Array.length; i++) {
 			String newDataLevel2 = newDataLevel1Array[i];
-			//System.out.println(newDataLevel2);
+			System.out.println(newDataLevel2);
 			String [] newDataLevel2Array = newDataLevel2.split(",");
 			scannerData.addPing(new LidarPing(Math.toRadians(Integer.parseInt(newDataLevel2Array[0])),Integer.parseInt(newDataLevel2Array[1])));
 			
@@ -105,7 +104,7 @@ public class LidarScanner extends Widget {
 	    	 double pingX = scannerData.getPing(i).getX() * distanceProperty.getValue() + width/2;
 	    	 double pingY = scannerData.getPing(i).getY() * distanceProperty.getValue() + width/2;
 	    	 g.fillOval((int)pingX - width/120, (int)pingY - width/120, width/60, width/60);
-	    	 System.out.println(scannerData.getPing(scannerData.getArrayPosition()).getAngle());
+	    	 //System.out.println(scannerData.getPing(scannerData.getArrayPosition()).getAngle());
 	    		
 		}
 	     g.setColor(Color.YELLOW);

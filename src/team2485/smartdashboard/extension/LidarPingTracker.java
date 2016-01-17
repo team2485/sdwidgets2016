@@ -7,9 +7,9 @@ public class LidarPingTracker {
 	private LidarPing[] array;
 
 	public LidarPingTracker(int length) {
-		arrayPosition = 10;
+		arrayPosition = length;
 		scanDirection = 1;
-		array = new LidarPing[length];
+		array = new LidarPing[length*2];
 
 		for (int i = 0; i < array.length; i++) {
 			array[i] = new LidarPing(0, 0);
@@ -17,8 +17,9 @@ public class LidarPingTracker {
 	}
 
 	public void addPing(LidarPing ping) {
-		array[arrayPosition] = ping;
 		arrayPosition += scanDirection;
+		array[arrayPosition] = ping;
+		
 		//System.out.println(ping.getAngle() + "," + ping.getDistance());
 	}
 
