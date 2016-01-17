@@ -1,49 +1,13 @@
 <xml version="1.0">
 <dashboard>
-	<widget field="Value4" type="Number" class="team2485.smartdashboard.extension.NumberWidget">
-		<location x="535" y="322"/>
+	<widget field="Value0" type="Number" class="team2485.smartdashboard.extension.LidarScanner">
+		<location x="459" y="290"/>
+		<width>551</width>
+		<height>485</height>
 	</widget>
-	<static-widget class="javax.swing.PotCalibrator">
-		<location x="278" y="564"/>
-		<width>888</width>
-		<height>51</height>
-	</static-widget>
-	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.RobotPreferences">
-		<location x="7" y="29"/>
-	</static-widget>
-	<widget field="RPM" type="Number" class="team2485.smartdashboard.extension.ToteWidget">
-		<location x="420" y="197"/>
-		<width>159</width>
-		<height>148</height>
+	<widget field="Value1" type="Number" class="team2485.smartdashboard.extension.BatteryWidget">
+		<location x="199" y="258"/>
 	</widget>
-	<widget field="Clapper and Container" type="String" class="team2485.smartdashboard.extension.ClapperandContainer">
-		<location x="804" y="100"/>
-		<width>437</width>
-		<height>589</height>
-		<property name="Test" value="true"/>
-	</widget>
-	<widget field="2" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="305" y="317"/>
-	</widget>
-	<widget field="Value1" type="Number" class="team2485.smartdashboard.extension.AirTankWidget">
-		<location x="30" y="435"/>
-	</widget>
-	<widget field="Value3" type="Number" class="team2485.smartdashboard.extension.BatteryWidget">
-		<location x="24" y="572"/>
-		<property name="Test" value="true"/>
-	</widget>
-	<widget field="Value5" type="Number" class="team2485.smartdashboard.extension.Dial">
-		<location x="27" y="118"/>
-		<width>346</width>
-		<height>285</height>
-		<property name="Size Multiplier" value="2.5"/>
-		<property name="Devitation" value="16.0"/>
-		<property name="Range" value="80"/>
-		<property name="Test" value="true"/>
-	</widget>
-	<static-widget class="team2485.smartdashboard.extension.Background">
-		<location x="-10" y="-29"/>
-	</static-widget>
 </dashboard>
 <live-window>
 </live-window>
