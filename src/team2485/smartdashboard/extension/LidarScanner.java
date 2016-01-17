@@ -22,7 +22,7 @@ public class LidarScanner extends Widget {
 
 	private int counter = 0;
 	private boolean shutdown = false;
-	private static int[][] scannerData = new int[150][2];
+	private static LidarPing[] scannerData = new LidarPing[150];
 	private Thread renderThread;
 
 	public BooleanProperty threadBooleanProperty = new BooleanProperty(this, "Test", true);
@@ -30,17 +30,18 @@ public class LidarScanner extends Widget {
 	private double distanceScalar = 0.005;
 	
 	private int scannerDataPosition = 0;
+	private int scannerDataDirection = 0;
 
 	@Override
 	public void init() {
+		
 		
 		 final Dimension size = new Dimension(300, 140);
 	     this.setSize(size);
 	     this.setPreferredSize(size);
 	        
 		for (int i = 0; i < scannerData.length; i++) {
-			scannerData[i][0] = 0;
-			scannerData[i][1] = 0;
+			scannerData[i] = new LidarPing(0,0);
 		}
 
 		renderThread = new Thread(new Runnable() {
@@ -88,15 +89,10 @@ public class LidarScanner extends Widget {
 		for (int i = 0; i < newDataLevel1Array.length; i++) {
 			String newDataLevel2 = newDataLevel1Array[i];
 			String [] newDataLevel2Array = newDataLevel2.split(",");
-			
-			for (int j = 0; j < newDataLevel2Array.length; j++) {
-				if (scannerDataPosition > scannerData.length - 1){
-					scannerDataPosition = 0;
-				}
-				scannerData[scannerDataPosition][j] = Integer.parseInt(newDataLevel2Array[j]);
-				//System.out.println(scannerData[scannerDataPosition][j]);
-				
+			if (scannerDataPosition > 149){
+				scannerDataPosition = 0;
 			}
+			scannerData[scannerDataPosition] = new LidarPing(Math.toRadians(Integer.parseInt(newDataLevel2Array[0])),Integer.parseInt(newDataLevel2Array[1]));
 			scannerDataPosition++;
 		}		
 
@@ -110,15 +106,13 @@ public class LidarScanner extends Widget {
 	     int width = Math.min(getWidth(), getHeight()) - 2;
 	     g.fillOval(width/2 - width/80, width/2 - width/80, width/40, width/40);
 	     for (int i = 0; i < scannerData.length ; i++) {
-	    	 double angle    = Math.toRadians(scannerData[i][0]);
-	    	 double distance = scannerData[i][1] * width * distanceScalar;
-	    	 System.out.println(scannerData[i][0] + "_" + scannerData[i][0]);
-	    	 double pingX = Math.sin(angle)*distance + width/2;
-	    	 double pingY = Math.cos(angle)*distance + width/2;
+	    	 double distance = scannerData[i].getDistance() * width * distanceScalar;
+	    	 double pingX = scannerData[i].getX() + width/2;
+	    	 double pingY = scannerData[i].getY() + width/2;
 	    	 g.fillOval((int)pingX - width/120, (int)pingY - width/120, width/60, width/60);
 		}
 	     g.setColor(Color.YELLOW);
-	    double lineAngle    = Math.toRadians(scannerData[scannerDataPosition-1][0]);
+	    double lineAngle    = scannerData[scannerDataPosition-1].getAngle();
 	    double lineX = Math.sin(lineAngle)*width/2 + width/2;
     	double lineY = Math.cos(lineAngle)*width/2 + width/2;
 	    g.drawLine(width/2, width/2, (int)lineX, (int)lineY); 
