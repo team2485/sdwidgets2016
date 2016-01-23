@@ -23,7 +23,7 @@ public class LidarScanner extends Widget {
 
 	private int counter = 0;
 	private boolean shutdown = false;
-	private static LidarPingTracker scannerData = new LidarPingTracker(80);
+	private static LidarPingTracker scannerData = new LidarPingTracker(800);
 	private Thread renderThread;
 
 	public BooleanProperty threadBooleanProperty = new BooleanProperty(this, "Test", false);
@@ -73,7 +73,6 @@ public class LidarScanner extends Widget {
 
 	@Override
 	public void propertyChanged(Property arg0) {
-		// TODO Auto-generated method stub
 
 	}
 
