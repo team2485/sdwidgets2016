@@ -23,11 +23,11 @@ public class LidarScanner extends Widget {
 
 	private int counter = 0;
 	private boolean shutdown = false;
-	private static LidarPingTracker scannerData = new LidarPingTracker(80);
+	private static LidarPingTracker scannerData = new LidarPingTracker(800);
 	private Thread renderThread;
 
 	public BooleanProperty threadBooleanProperty = new BooleanProperty(this, "Test", false);
-    public final DoubleProperty distanceProperty = new DoubleProperty(this, "Distance Scale", 1);
+    public final DoubleProperty distanceProperty = new DoubleProperty(this, "Distance Scale", 0.001);
 
 	@Override
 	public void init() {
@@ -39,7 +39,8 @@ public class LidarScanner extends Widget {
 
 		renderThread = new Thread(new Runnable() {
 
-			private int prevDistance = 80;
+			private double prevDistance1 = 80;
+			private double prevDistance2 = 80;
 
 			@Override
 			public void run() {
@@ -49,14 +50,15 @@ public class LidarScanner extends Widget {
 						if (counter > 48) {
 							counter = -48;
 						}
-						prevDistance += (Math.random()-.5)*10;
-						if (prevDistance < 10){
-							prevDistance = 10;
-						} else if (prevDistance > 90){
-							prevDistance = 90;
+						prevDistance1 = prevDistance2 + (Math.random()-.5)*10;
+						prevDistance2 = prevDistance1 + (Math.random()-.5)*10;
+						if (prevDistance2 < 30){
+							prevDistance2 = 30;
+						} else if (prevDistance2 > 90){
+							prevDistance2 = 90;
 						}
 						if (counter != 0){
-						setValue(counter/Math.abs(counter) + ":" + Math.abs(counter)*3 + "," + prevDistance);
+							setValue(counter/Math.abs(counter) + ":" + Math.abs(counter) + "," + prevDistance1 + ":" + Math.abs(counter)+1 + "," + prevDistance2);
 						}
 					}
 					repaint();
@@ -66,14 +68,13 @@ public class LidarScanner extends Widget {
 					}
 				}
 			}
-		}, "Widget");
+		}, "Lidar Scanner Widget");
 		renderThread.start();
 		   
 	}
 
 	@Override
 	public void propertyChanged(Property arg0) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -86,7 +87,7 @@ public class LidarScanner extends Widget {
 			String newDataLevel2 = newDataLevel1Array[i];
 			System.out.println(newDataLevel2);
 			String [] newDataLevel2Array = newDataLevel2.split(",");
-			scannerData.addPing(new LidarPing(Math.toRadians(Integer.parseInt(newDataLevel2Array[0])),Integer.parseInt(newDataLevel2Array[1])));
+			scannerData.addPing(new LidarPing(Math.toRadians(Double.parseDouble(newDataLevel2Array[0])),Double.parseDouble(newDataLevel2Array[1])));
 			
 		}		
 		repaint();
@@ -101,8 +102,8 @@ public class LidarScanner extends Widget {
 	     g.fillOval(width/2 - width/80, width/2 - width/80, width/40, width/40);
 	     for (int i = 0; i < scannerData.getLength(); i++) {
 	    	 //double distance = scannerData.getPing(i).getDistance() * width * distanceScalar;
-	    	 double pingX = scannerData.getPing(i).getX() * distanceProperty.getValue() + width/2;
-	    	 double pingY = scannerData.getPing(i).getY() * distanceProperty.getValue() + width/2;
+	    	 double pingX = scannerData.getPing(i).getX() * distanceProperty.getValue() * width + width/2;
+	    	 double pingY = scannerData.getPing(i).getY() * distanceProperty.getValue() * width + width/2;
 	    	 g.fillOval((int)pingX - width/120, (int)pingY - width/120, width/60, width/60);
 	    	 //System.out.println(scannerData.getPing(scannerData.getArrayPosition()).getAngle());
 	    		
