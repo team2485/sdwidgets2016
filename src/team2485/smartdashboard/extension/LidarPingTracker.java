@@ -9,7 +9,7 @@ public class LidarPingTracker {
 	public LidarPingTracker(int length) {
 		arrayPosition = length;
 		scanDirection = 1;
-		array = new LidarPing[length*2];
+		array = new LidarPing[length * 2];
 
 		for (int i = 0; i < array.length; i++) {
 			array[i] = new LidarPing(0, 0);
@@ -19,8 +19,8 @@ public class LidarPingTracker {
 	public void addPing(LidarPing ping) {
 		arrayPosition += scanDirection;
 		array[arrayPosition] = ping;
-		
-		//System.out.println(ping.getAngle() + "," + ping.getDistance());
+
+		// System.out.println(ping.getAngle() + "," + ping.getDistance());
 	}
 
 	public int getArrayPosition() {
@@ -44,17 +44,19 @@ public class LidarPingTracker {
 	}
 
 	public void setDirection(int direction) {
+		int oldScanDirection = scanDirection;
 		scanDirection = direction;
 
-//		if (scanDirection == -1) {
-//			for (int i = arrayPosition; i < array.length; i++) {
-//				array[i] = new LidarPing(0, 0);
-//			}
-//		} else if (scanDirection == 1) {
-//			for (int i = arrayPosition; i > -1; i--) {
-//				array[i] = new LidarPing(0, 0);
-//			}
-//		}
-
+		if (oldScanDirection != scanDirection) {
+			if (scanDirection == -1) {
+				for (int i = arrayPosition; i < array.length; i++) {
+					array[i] = new LidarPing(0, 0);
+				}
+			} else if (scanDirection == 1) {
+				for (int i = arrayPosition; i > -1; i--) {
+					array[i] = new LidarPing(0, 0);
+				}
+			}
+		}
 	}
 }
