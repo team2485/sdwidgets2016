@@ -11,13 +11,18 @@ public class LidarPingTracker {
 		scanDirection = 1;
 		array = new LidarPing[length * 2];
 
-		for (int i = 0; i < array.length; i++) {
-			array[i] = new LidarPing(0, 0);
-		}
+//		for (int i = 0; i < array.length; i++) {
+//			array[i] = new LidarPing(0, 0);
+//		}
 	}
 
 	public void addPing(LidarPing ping) {
 		arrayPosition += scanDirection;
+		if (arrayPosition > array.length - 1){
+			arrayPosition = array.length - 1;
+		} else if (arrayPosition < 0){
+			arrayPosition = 0;
+		}
 		array[arrayPosition] = ping;
 
 		// System.out.println(ping.getAngle() + "," + ping.getDistance());
@@ -50,11 +55,11 @@ public class LidarPingTracker {
 		if (oldScanDirection != scanDirection) {
 			if (scanDirection == -1) {
 				for (int i = arrayPosition; i < array.length; i++) {
-					array[i] = new LidarPing(0, 0);
+					array[i] = null;
 				}
 			} else if (scanDirection == 1) {
 				for (int i = arrayPosition; i > -1; i--) {
-					array[i] = new LidarPing(0, 0);
+					array[i] = null;
 				}
 			}
 		}

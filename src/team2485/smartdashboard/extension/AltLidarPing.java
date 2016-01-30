@@ -65,4 +65,8 @@ public class AltLidarPing {
 	public double getRelativeAngle() {
 		return relativeAngle;
 	}
+	
+	public double getDistance() {
+		return distance;
+	}
 }

@@ -20,6 +20,8 @@ public class AltLidarScanner extends Widget {
 
 	public final DoubleProperty distanceProperty = new DoubleProperty(this,
 			"CM Per Pixel", 3);
+	
+	public final DoubleProperty numberOfRings = new DoubleProperty(this, "Number Of Rings", 4);
 
 	private ArrayList<AltLidarPing> lidarPings;
 
@@ -46,7 +48,7 @@ public class AltLidarScanner extends Widget {
 
 		String[] stringValues = stringForm.split(":");
 
-		for (int i = 0; i < stringValues.length; i++) {
+		for (int i = 1; i < stringValues.length; i++) {
 
 			String curString = stringValues[i];
 
@@ -56,7 +58,7 @@ public class AltLidarScanner extends Widget {
 
 			double value2 = Double.parseDouble(twoValues[1]);
 
-			if (i == 0) {
+			if (i == 1) {
 
 				adjustPointsForMovement(value1);
 
@@ -103,9 +105,21 @@ public class AltLidarScanner extends Widget {
 
 		g2d.setColor(Color.GREEN);
 
-		g2d.drawOval(0, 0, dimensions.width, dimensions.height);
-
 		g2d.translate(dimensions.width / 2, dimensions.height / 2);
+
+		int numOfRings = (int) Math.round(numberOfRings.getValue());
+		
+		numberOfRings.setValue(numOfRings);
+
+		for (int i = 1; i < numOfRings + 1; i++) {
+
+			int radius = Math.min(getWidth(), getHeight()) / 2 / numOfRings * i;
+
+			g2d.drawOval(-radius, -radius, radius * 2, radius * 2);
+
+			g2d.drawString(i * radius + " CM", -10, radius - 10);
+
+		}
 
 		g2d.rotate(Math.toRadians(robotHeading));
 
@@ -124,16 +138,32 @@ public class AltLidarScanner extends Widget {
 		} else {
 
 			AltLidarPing latestPing = lidarPings.get(lidarPings.size() - 1);
+			
+			g2d.drawString((int) latestPing.getDistance() + " CM", -10, -20);
 
 			if (latestPing.getX() == 0 && latestPing.getY() == 0) {
-				g2d.drawString("NACK", 0, -50);
+
+				boolean nack = true;
+
+				for (AltLidarPing curPing : lidarPings) {
+
+					if (curPing.getX() != 0 || curPing.getY() != 0) {
+						nack = false;
+						break;
+					}
+				}
+
+				if (nack) {
+					g2d.drawString("NACK", 0, -50);
+				}
+
 			} else {
 
 				g2d.setColor(Color.GREEN);
 
 				double angle = latestPing.getRelativeAngle();
 
-				double length = Math.min(getWidth(), getHeight());
+				double length = Math.min(getWidth(), getHeight()) / 2;
 
 				g2d.drawLine(
 						0,

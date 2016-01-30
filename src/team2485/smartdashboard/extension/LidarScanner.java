@@ -23,11 +23,11 @@ public class LidarScanner extends Widget {
 
 	private int counter = 0;
 	private boolean shutdown = false;
-	private static LidarPingTracker scannerData = new LidarPingTracker(800);
+	private static LidarPingTracker scannerData = new LidarPingTracker(1600);
 	private Thread renderThread;
 
 	public BooleanProperty threadBooleanProperty = new BooleanProperty(this, "Test", false);
-    public final DoubleProperty distanceProperty = new DoubleProperty(this, "Distance Scale", 0.001);
+    public final DoubleProperty distanceProperty = new DoubleProperty(this, "Distance Scale", 0.0005);
 
 	@Override
 	public void init() {
@@ -83,11 +83,11 @@ public class LidarScanner extends Widget {
 		String newDataLevel1 = (String)(arg0);
 		String [] newDataLevel1Array = newDataLevel1.split(":");
 		scannerData.setDirection(Integer.parseInt(newDataLevel1Array[0]));
-		for (int i = 1; i < newDataLevel1Array.length; i++) {
+		for (int i = 2; i < newDataLevel1Array.length; i++) {
 			String newDataLevel2 = newDataLevel1Array[i];
 			System.out.println(newDataLevel2);
 			String [] newDataLevel2Array = newDataLevel2.split(",");
-			scannerData.addPing(new LidarPing(Math.toRadians(Double.parseDouble(newDataLevel2Array[0])),Double.parseDouble(newDataLevel2Array[1])));
+			scannerData.addPing(new LidarPing(-1 * Math.toRadians(Double.parseDouble(newDataLevel2Array[0])),Double.parseDouble(newDataLevel2Array[1])));
 			
 		}		
 		repaint();
@@ -101,12 +101,13 @@ public class LidarScanner extends Widget {
 	     int width = Math.min(getWidth(), getHeight()) - 2;
 	     g.fillOval(width/2 - width/80, width/2 - width/80, width/40, width/40);
 	     for (int i = 0; i < scannerData.getLength(); i++) {
-	    	 //double distance = scannerData.getPing(i).getDistance() * width * distanceScalar;
-	    	 double pingX = scannerData.getPing(i).getX() * distanceProperty.getValue() * width + width/2;
-	    	 double pingY = scannerData.getPing(i).getY() * distanceProperty.getValue() * width + width/2;
-	    	 g.fillOval((int)pingX - width/120, (int)pingY - width/120, width/60, width/60);
-	    	 //System.out.println(scannerData.getPing(scannerData.getArrayPosition()).getAngle());
-	    		
+	    	 if (scannerData.getPing(i) != null){
+	    		 //double distance = scannerData.getPing(i).getDistance() * width * distanceScalar;
+	    		 double pingX = scannerData.getPing(i).getX() * distanceProperty.getValue() * width + width/2;
+	    		 double pingY = scannerData.getPing(i).getY() * distanceProperty.getValue() * width + width/2;
+	    		 g.fillOval((int)pingX - width/240, (int)pingY - width/240, width/120, width/120);
+	    		 //System.out.println(scannerData.getPing(scannerData.getArrayPosition()).getAngle());
+	    	 }	
 		}
 	     g.setColor(Color.YELLOW);
 	    double lineAngle    = scannerData.getPing(scannerData.getArrayPosition()).getAngle();
