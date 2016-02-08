@@ -1,4 +1,4 @@
-Team 2485 Smart Dashboard Widgets 2015
+Team 2485 Smart Dashboard Widgets 2016
 =================================
 
 These can be used to add functionality and customize the look and feel of [SmartDashboard](http://firstforge.wpi.edu/sf/projects/smartdashboard).
