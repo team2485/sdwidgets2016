@@ -113,11 +113,11 @@ public class GRIPImage extends JComponent {
 			g2d.setTransform(transform);
 			g2d.setStroke(new BasicStroke((float) (2 / scale)));
 
-//			synchronized (reportList) {
-//				for (GRIPReportList.Report report : reportList.getReports()) {
-//					renderReport(g2d, report);
-//				}
-//			}
+			synchronized (reportList) {
+				for (GRIPReportList.Report report : reportList.getReports()) {
+					renderReport(g2d, report);
+				}
+			}
 		}
 	}
 
