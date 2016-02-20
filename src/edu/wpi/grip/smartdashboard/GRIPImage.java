@@ -1,21 +1,11 @@
 package edu.wpi.grip.smartdashboard;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
-import java.util.Arrays;
-
-import javax.swing.JComponent;
-
 import edu.wpi.first.wpilibj.tables.ITable;
-import edu.wpi.grip.smartdashboard.GRIPReportList.Report;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.util.Arrays;
 
 /**
  * A Swing component that renders either an image or an error. This is used
@@ -23,7 +13,7 @@ import edu.wpi.grip.smartdashboard.GRIPReportList.Report;
  */
 public class GRIPImage extends JComponent {
 
-	private BufferedImage image = null;
+	private Image image = null;
 	private String error = null;
 	private GRIPReportList reportList = null;
 
@@ -38,7 +28,7 @@ public class GRIPImage extends JComponent {
 	 * Set the latest image to show and clear any error
 	 */
 	public synchronized void setImage(Image image) {
-		this.image = (BufferedImage) image;
+		this.image = image;
 		this.error = null;
 		EventQueue.invokeLater(this::repaint);
 	}
@@ -85,23 +75,6 @@ public class GRIPImage extends JComponent {
 			g2d.setColor(Color.BLACK);
 			g2d.fillRect(0, 0, getWidth(), getHeight());
 			g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-
-			Graphics2D imageG = (Graphics2D) image.getGraphics();
-
-			imageG.setStroke(new BasicStroke(6));
-			imageG.setColor(Color.GREEN);
-			imageG.drawLine(image.getWidth() / 2, 0, image.getWidth() / 2, image.getHeight());
-
-			imageG.setStroke(new BasicStroke(4));
-			imageG.setColor(Color.YELLOW);
-			imageG.drawLine((image.getWidth() / 2) + 25, 0, (image.getWidth() / 2) + 25, image.getHeight());
-			imageG.drawLine((image.getWidth() / 2) - 25, 0, (image.getWidth() / 2) - 25, image.getHeight());
-
-			imageG.setStroke(new BasicStroke(2));
-			imageG.setColor(Color.RED);
-			imageG.drawLine((image.getWidth() / 2) + 50, 0, (image.getWidth() / 2) + 50, image.getHeight());
-			imageG.drawLine((image.getWidth() / 2) - 50, 0, (image.getWidth() / 2) - 50, image.getHeight());
-
 			g2d.drawImage(image, x, y, width, height, null);
 
 			// Scale anything drawn after this point so it lines up with the
@@ -137,28 +110,51 @@ public class GRIPImage extends JComponent {
 
 		ITable table = report.table;
 		g2d.setColor(report.color);
+		g2d.setStroke(new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
-		if (containsAll(table, Arrays.asList("centerX", "centerY", "width", "height"))) {
+		if (containsAll(table, Arrays.asList("x1", "x2", "y1", "y2"))) {
+			// If the subtable has four equal-length number arrays called x1,
+			// y1, x2, and y2, then draw a line for
+			// each element in the arrays
+			double[] x1 = getNumberArray(table, "x1");
+			double[] x2 = getNumberArray(table, "x2");
+			double[] y1 = getNumberArray(table, "y1");
+			double[] y2 = getNumberArray(table, "y2");
 
-			double[][] tableValues = new double[][] { getNumberArray(table, "centerX"),
-					getNumberArray(table, "centerY"), getNumberArray(table, "width"), getNumberArray(table, "height") };
-
-			for (int i = 0; i < tableValues[0].length; i++) {
-
-				g2d.drawRect((int) (tableValues[0][i] - (tableValues[2][i] / 2)),
-						(int) (tableValues[1][i] - (tableValues[3][i] / 2)), (int) tableValues[2][i],
-						(int) tableValues[3][i]);
-
+			if (x1.length == x2.length && x1.length == y1.length && x1.length == y2.length) {
+				for (int i = 0; i < x1.length; i++) {
+					g2d.drawLine((int) x1[i], (int) y1[i], (int) x2[i], (int) y2[i]);
+				}
 			}
-
 		} else if (containsAll(table, Arrays.asList("x", "y", "size"))) {
 			// If the subtable has three equal-length arrays called x, y, and
 			// size, draw a circle for each element
-			double[] x = getNumberArray(table, "x"), y = getNumberArray(table, "y"),
-					size = getNumberArray(table, "size");
+			double[] x = getNumberArray(table, "x");
+			double[] y = getNumberArray(table, "y");
+			double[] size = getNumberArray(table, "size");
+
 			if (x.length == y.length) {
 				for (int i = 0; i < x.length; i++) {
 					g2d.drawOval((int) (x[i] - size[i] / 2), (int) (y[i] - size[i] / 2), (int) size[i], (int) size[i]);
+					g2d.drawLine((int) (x[i] - 8), (int) y[i], (int) (x[i] + 8), (int) y[i]);
+					g2d.drawLine((int) x[i], (int) (y[i] - 8), (int) x[i], (int) (y[i] + 8));
+				}
+			}
+		} else if (containsAll(table, Arrays.asList("centerX", "centerY", "width", "height"))) {
+			// If the subtable has x, y, width, and height, draw rectangles.
+			// This really means GRIP is publishing
+			// contours, but it doesn't publish the full contour data.
+			double x[] = getNumberArray(table, "centerX");
+			double y[] = getNumberArray(table, "centerY");
+			double width[] = getNumberArray(table, "width");
+			double height[] = getNumberArray(table, "height");
+
+			if (x.length == y.length && x.length == width.length && x.length == height.length) {
+				for (int i = 0; i < x.length; i++) {
+					g2d.drawRect((int) (x[i] - width[i] / 2), (int) (y[i] - height[i] / 2), (int) width[i],
+							(int) height[i]);
+					g2d.drawLine((int) (x[i] - 8), (int) y[i], (int) (x[i] + 8), (int) y[i]);
+					g2d.drawLine((int) x[i], (int) (y[i] - 8), (int) x[i], (int) (y[i] + 8));
 				}
 			}
 		}

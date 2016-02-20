@@ -80,8 +80,7 @@ public class GRIPReportList extends JList<GRIPReportList.Report> {
      * Start listening for NetworkTables values
      */
     public void start() {
-    	//Commenting this out might remove that pesky tab
-        //setCellRenderer(new ReportCellRenderer());
+        setCellRenderer(new ReportCellRenderer());
 
         NetworkTable.getTable("GRIP").addSubTableListener((table, key, v, i) -> {
             Report report = new Report(key, table.getSubTable(key), COLORS[(reports.size()) % COLORS.length]);
@@ -91,23 +90,6 @@ public class GRIPReportList extends JList<GRIPReportList.Report> {
 
             repaint();
         });
-    }
-    
-    public int getLength() {
-    	return this.getModel().getSize();
-    }
-    
-    public Report getSelectedReport() {
-    	
-    	if (this.getModel().getSize() == 0) {
-    		return null;
-    	}
-    	
-    	if (this.getModel().getSize() == 1) {
-    		return this.getModel().getElementAt(0);
-    	}
-    	
-    	return this.getSelectedValue();
     }
 
     public List<Report> getReports() {
