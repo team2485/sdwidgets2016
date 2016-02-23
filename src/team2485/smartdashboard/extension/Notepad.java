@@ -3,6 +3,14 @@ package team2485.smartdashboard.extension;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
@@ -29,12 +37,16 @@ public class Notepad extends Widget {
 	public void init() {
 
 		tabbedPane = new JTabbedPane();
-		
+
 		tabbedPane.setBackground(new Color(0x111111));
-		
+
 		tabbedPane.addTab("", new JTextField());
 
-		addNewTab();
+		try {
+			loadNotes();
+		} catch (IOException e) {
+			addNewTab();
+		}
 
 		new UpdateThread().start();
 	}
@@ -43,11 +55,58 @@ public class Notepad extends Widget {
 		tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), "Note " + (tabbedPane.getSelectedIndex() + 1));
 
 		JTextField newTextField = new JTextField();
-		
+
 		newTextField.setSelectedTextColor(Color.YELLOW);
 		newTextField.setCaretColor(Color.YELLOW);
-		
+
 		tabbedPane.addTab("Create New Note", newTextField);
+	}
+
+	private void saveNotes() throws IOException {
+
+		FileWriter fileWriter = null;
+		try {
+			fileWriter = new FileWriter(new File(getClass().getResource("SavedNotes.txt").toURI()));
+		} catch (IOException | URISyntaxException e) {
+			e.printStackTrace();
+		}
+
+		BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+
+		for (int i = 0; i < tabbedPane.getTabCount() - 1; i++) {
+
+			bufferedWriter.write("---NEW NOTE---");
+			bufferedWriter.write(tabbedPane.getTitleAt(i));
+			bufferedWriter.newLine();
+			bufferedWriter.write(((JTextField) tabbedPane.getTabComponentAt(i)).getText());
+			bufferedWriter.newLine();
+		}
+	}
+
+	private void loadNotes() throws IOException {
+
+		FileReader fileReader = null;
+		try {
+			fileReader = new FileReader(new File(getClass().getResource("SavedNotes.txt").toURI()));
+		} catch (FileNotFoundException | URISyntaxException e) {
+			e.printStackTrace();
+		}
+
+		BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+		String curLine = bufferedReader.readLine();
+
+		while (curLine != null) {
+
+			if (curLine.equals("---NEW NOTE---")) {
+				addNewTab();
+			} else {
+
+				JTextField curField = (JTextField) tabbedPane.getTabComponentAt(tabbedPane.getTabCount() - 2);
+
+				curField.setText(curField.getText() + curLine);
+			}
+		}
 	}
 
 	class UpdateThread extends Thread {
@@ -59,14 +118,18 @@ public class Notepad extends Widget {
 				if (tabbedPane.getSelectedIndex() == tabbedPane.getTabCount() - 1) {
 					addNewTab();
 				}
-				
+
+				try {
+					saveNotes();
+				} catch (IOException e) {
+				}
+
 				tabbedPane.repaint();
-				
+
 				try {
 					Thread.sleep(50);
 				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}	
+				}
 			}
 		}
 	}
