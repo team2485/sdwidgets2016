@@ -16,15 +16,17 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
 import edu.wpi.first.smartdashboard.gui.Widget;
+import edu.wpi.first.smartdashboard.properties.BooleanProperty;
 import edu.wpi.first.smartdashboard.properties.Property;
 
 public class Notepad extends Widget {
 
 	private JTabbedPane tabbedPane;
 
+	private BooleanProperty autoDelete = new BooleanProperty(this, "Auto-Delete Empty Tabs", true);
+
 	@Override
 	public void propertyChanged(Property arg0) {
-
 	}
 
 	@Override
@@ -117,6 +119,25 @@ public class Notepad extends Widget {
 
 				if (tabbedPane.getSelectedIndex() == tabbedPane.getTabCount() - 1) {
 					addNewTab();
+				}
+
+				if (autoDelete.getValue()) {
+
+					for (int i = 0; i < tabbedPane.getTabCount() - 1; i++) {
+						if (i != tabbedPane.getSelectedIndex()
+								&& ((JTextField) tabbedPane.getTabComponentAt(i)).getText().equals("")) {
+							
+							tabbedPane.removeTabAt(i);
+							i--;
+							
+							for (int j = i; j < tabbedPane.getTabCount() - 1; j++) {
+								JTextField curText = (JTextField) tabbedPane.getSelectedComponent();
+							
+								tabbedPane.insertTab("Note " + j, null, curText, null, j);
+								tabbedPane.removeTabAt(j + 1);
+							}
+						}
+					}
 				}
 
 				try {
