@@ -12,14 +12,19 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
+import edu.wpi.first.smartdashboard.gui.StaticWidget;
 import edu.wpi.first.smartdashboard.gui.Widget;
 import edu.wpi.first.smartdashboard.properties.BooleanProperty;
 import edu.wpi.first.smartdashboard.properties.Property;
 
-public class Notepad extends Widget {
+public class Notepad extends StaticWidget {
+	
+	private JPanel panel;
 
 	private JTabbedPane tabbedPane;
 
@@ -30,17 +35,13 @@ public class Notepad extends Widget {
 	}
 
 	@Override
-	public void setValue(Object arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void init() {
+		
+		panel = new JPanel();
 
 		tabbedPane = new JTabbedPane();
 
-		tabbedPane.setBackground(new Color(0x111111));
+		tabbedPane.setBackground(Color.ORANGE);
 
 		tabbedPane.addTab("", new JTextField());
 
@@ -49,6 +50,12 @@ public class Notepad extends Widget {
 		} catch (IOException e) {
 			addNewTab();
 		}
+		
+		panel.add(tabbedPane);
+		
+		panel.setVisible(true);
+		
+		add(tabbedPane);
 
 		new UpdateThread().start();
 	}
@@ -145,7 +152,7 @@ public class Notepad extends Widget {
 				} catch (IOException e) {
 				}
 
-				tabbedPane.repaint();
+				panel.repaint();
 
 				try {
 					Thread.sleep(50);

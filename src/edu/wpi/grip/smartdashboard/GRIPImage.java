@@ -2,9 +2,15 @@ package edu.wpi.grip.smartdashboard;
 
 import edu.wpi.first.wpilibj.tables.ITable;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -13,7 +19,7 @@ import java.util.Arrays;
  */
 public class GRIPImage extends JComponent {
 
-	private Image image = null;
+	private BufferedImage image = null;
 	private String error = null;
 	private GRIPReportList reportList = null;
 
@@ -28,7 +34,7 @@ public class GRIPImage extends JComponent {
 	 * Set the latest image to show and clear any error
 	 */
 	public synchronized void setImage(Image image) {
-		this.image = image;
+		this.image = (BufferedImage) image;
 		this.error = null;
 		EventQueue.invokeLater(this::repaint);
 	}
@@ -55,9 +61,11 @@ public class GRIPImage extends JComponent {
 			g2d.setColor(Color.PINK);
 			g2d.fillRect(0, 0, getWidth(), getHeight());
 			g2d.setColor(Color.BLACK);
-			g2d.drawString(error == null ? "No image available" : error, em / 2, em);
+			g2d.drawString(error == null ? "No image available" : error,
+					em / 2, em);
 		} else {
-			final double aspectRatio = (double) image.getHeight(null) / image.getWidth(null);
+			final double aspectRatio = (double) image.getHeight(null)
+					/ image.getWidth(null);
 			int x = 0, y = 0, width = getWidth(), height = getHeight();
 
 			// Preserve the image's aspect ratio. If this component is too wide,
@@ -72,10 +80,29 @@ public class GRIPImage extends JComponent {
 				y = (getHeight() - height) / 2;
 			}
 
+			final int midline = (int) Math.round(221 * (width / 320.0));
+			final int spacing = (int) Math.round(25 * (width / 320.0));
+			
+
 			g2d.setColor(Color.BLACK);
 			g2d.fillRect(0, 0, getWidth(), getHeight());
-			g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+			g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+					RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 			g2d.drawImage(image, x, y, width, height, null);
+
+			g2d.setColor(Color.GREEN);
+			g2d.setStroke(new BasicStroke(5));
+			g2d.drawLine(midline, 0, midline, height);
+
+			g2d.setColor(Color.YELLOW);
+			g2d.setStroke(new BasicStroke(3));
+			g2d.drawLine(midline + spacing, 0, midline + spacing, height);
+			g2d.drawLine(midline - spacing, 0, midline - spacing, 240);
+
+			g2d.setColor(Color.RED);
+			g2d.setStroke(new BasicStroke(1));
+			g2d.drawLine(midline + spacing, 0, midline + spacing, height);
+			g2d.drawLine(midline - spacing, 0, midline - spacing, height);
 
 			// Scale anything drawn after this point so it lines up with the
 			// image
@@ -110,7 +137,8 @@ public class GRIPImage extends JComponent {
 
 		ITable table = report.table;
 		g2d.setColor(report.color);
-		g2d.setStroke(new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+		g2d.setStroke(new BasicStroke(2.0f, BasicStroke.CAP_ROUND,
+				BasicStroke.JOIN_ROUND));
 
 		if (containsAll(table, Arrays.asList("x1", "x2", "y1", "y2"))) {
 			// If the subtable has four equal-length number arrays called x1,
@@ -121,9 +149,11 @@ public class GRIPImage extends JComponent {
 			double[] y1 = getNumberArray(table, "y1");
 			double[] y2 = getNumberArray(table, "y2");
 
-			if (x1.length == x2.length && x1.length == y1.length && x1.length == y2.length) {
+			if (x1.length == x2.length && x1.length == y1.length
+					&& x1.length == y2.length) {
 				for (int i = 0; i < x1.length; i++) {
-					g2d.drawLine((int) x1[i], (int) y1[i], (int) x2[i], (int) y2[i]);
+					g2d.drawLine((int) x1[i], (int) y1[i], (int) x2[i],
+							(int) y2[i]);
 				}
 			}
 		} else if (containsAll(table, Arrays.asList("x", "y", "size"))) {
@@ -135,12 +165,17 @@ public class GRIPImage extends JComponent {
 
 			if (x.length == y.length) {
 				for (int i = 0; i < x.length; i++) {
-					g2d.drawOval((int) (x[i] - size[i] / 2), (int) (y[i] - size[i] / 2), (int) size[i], (int) size[i]);
-					g2d.drawLine((int) (x[i] - 8), (int) y[i], (int) (x[i] + 8), (int) y[i]);
-					g2d.drawLine((int) x[i], (int) (y[i] - 8), (int) x[i], (int) (y[i] + 8));
+					g2d.drawOval((int) (x[i] - size[i] / 2),
+							(int) (y[i] - size[i] / 2), (int) size[i],
+							(int) size[i]);
+					g2d.drawLine((int) (x[i] - 8), (int) y[i],
+							(int) (x[i] + 8), (int) y[i]);
+					g2d.drawLine((int) x[i], (int) (y[i] - 8), (int) x[i],
+							(int) (y[i] + 8));
 				}
 			}
-		} else if (containsAll(table, Arrays.asList("centerX", "centerY", "width", "height"))) {
+		} else if (containsAll(table,
+				Arrays.asList("centerX", "centerY", "width", "height"))) {
 			// If the subtable has x, y, width, and height, draw rectangles.
 			// This really means GRIP is publishing
 			// contours, but it doesn't publish the full contour data.
@@ -149,14 +184,32 @@ public class GRIPImage extends JComponent {
 			double width[] = getNumberArray(table, "width");
 			double height[] = getNumberArray(table, "height");
 
-			if (x.length == y.length && x.length == width.length && x.length == height.length) {
+			if (x.length == y.length && x.length == width.length
+					&& x.length == height.length) {
 				for (int i = 0; i < x.length; i++) {
-					g2d.drawRect((int) (x[i] - width[i] / 2), (int) (y[i] - height[i] / 2), (int) width[i],
+					g2d.drawRect((int) (x[i] - width[i] / 2),
+							(int) (y[i] - height[i] / 2), (int) width[i],
 							(int) height[i]);
-					g2d.drawLine((int) (x[i] - 8), (int) y[i], (int) (x[i] + 8), (int) y[i]);
-					g2d.drawLine((int) x[i], (int) (y[i] - 8), (int) x[i], (int) (y[i] + 8));
+					g2d.drawLine((int) (x[i] - 8), (int) y[i],
+							(int) (x[i] + 8), (int) y[i]);
+					g2d.drawLine((int) x[i], (int) (y[i] - 8), (int) x[i],
+							(int) (y[i] + 8));
 				}
 			}
+		}
+
+		if (table.getBoolean("savePhoto")) {
+
+			table.putBoolean("savePhoto", false);
+
+			try {
+				ImageIO.write(image, ".png",
+						new File("C:/Users/2485/Desktop/photosFromRobot/"
+								+ System.currentTimeMillis()));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
 		}
 	}
 
@@ -175,7 +228,8 @@ public class GRIPImage extends JComponent {
 		Object o = table.getValue(key);
 
 		if (!(o instanceof double[])) {
-			throw new RuntimeException("Got an object that was not an array of doubles");
+			throw new RuntimeException(
+					"Got an object that was not an array of doubles");
 		}
 
 		return (double[]) o;
