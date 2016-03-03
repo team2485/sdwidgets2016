@@ -38,7 +38,7 @@ public class IntakeArmPosition extends Widget {
 	private final double MAX_ERROR = 5 / 360.0;
 
 	private BufferedImage armImage;
-	private final int pivotX = 30, pivotY = 35;
+	private final int pivotX = 33, pivotY = 131;
 
 	@Override
 	public void propertyChanged(Property arg0) {
@@ -69,7 +69,7 @@ public class IntakeArmPosition extends Widget {
 	public void init() {
 
 		try {
-			armImage = ImageIO.read(getClass().getResource("/team2485/smartdashboard/extension/res/containerArm.png"));
+			armImage = ImageIO.read(getClass().getResource("/team2485/smartdashboard/extension/res/intakeImage.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -85,7 +85,7 @@ public class IntakeArmPosition extends Widget {
 			public void run() {
 				repaint();
 			}
-		}, 0, (long) (1000.0 / 30));
+		}, 0, (long) (1000.0 / 60));
 	}
 
 	@Override
@@ -106,9 +106,9 @@ public class IntakeArmPosition extends Widget {
 		}
 
 		int imageX = (int) (getWidth() * 0.1);
-		int imageY = (int) (getHeight() * 0.5);
+		int imageY = (int) (getHeight() * 0.25);
 
-		double scaleFactor = (getWidth() - imageX) / (double) armImage.getWidth();
+		double scaleFactor = (getWidth() - imageX) / (double) (armImage.getWidth() + armImage.getHeight());
 
 		g2d.translate(pivotX + imageX, pivotY + imageY);
 		g2d.rotate(-(curAngle - intakePos) * 6.28319f);
