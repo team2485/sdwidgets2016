@@ -20,7 +20,7 @@ import edu.wpi.first.smartdashboard.properties.NumberProperty;
 import edu.wpi.first.smartdashboard.properties.Property;
 import edu.wpi.first.smartdashboard.types.DataType;
 
-public class IntakeArmPosition extends StaticWidget {
+public class IntakeArmPosition extends Widget {
 
 	public static final String NAME = "Intake Arm Position Widget";
 	public static final DataType[] TYPES = { DataType.STRING };
@@ -53,7 +53,7 @@ public class IntakeArmPosition extends StaticWidget {
 	 * 
 	 * Current Angle,Encoder Reading for Floor,Reading for Intake,Reading for Full Up
 	 */
-
+	@Override
 	public void setValue(Object arg0) {
 		String input = (String) arg0;
 
