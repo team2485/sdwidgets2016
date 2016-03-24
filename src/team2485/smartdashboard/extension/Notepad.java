@@ -1,164 +1,138 @@
 package team2485.smartdashboard.extension;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.URISyntaxException;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 
 import edu.wpi.first.smartdashboard.gui.StaticWidget;
 import edu.wpi.first.smartdashboard.gui.Widget;
 import edu.wpi.first.smartdashboard.properties.BooleanProperty;
 import edu.wpi.first.smartdashboard.properties.Property;
 
-public class Notepad extends StaticWidget {
-	
-	private JPanel panel;
+public class Notepad extends StaticWidget implements Serializable {
 
-	private JTabbedPane tabbedPane;
+	private static final long serialVersionUID = 1L;
 
-	private BooleanProperty autoDelete = new BooleanProperty(this, "Auto-Delete Empty Tabs", true);
+	private static long UIDCount = 1;
+
+	private long UID;
+	private JTextPane textPane;
 
 	@Override
 	public void propertyChanged(Property arg0) {
+		// TODO Auto-generated method stub
+
 	}
 
 	@Override
 	public void init() {
-		
-		panel = new JPanel();
 
-		tabbedPane = new JTabbedPane();
+		UID = UIDCount;
 
-		tabbedPane.setBackground(Color.ORANGE);
+		UIDCount++;
 
-		tabbedPane.addTab("", new JTextField());
+		textPane = new JTextPane();
 
-		try {
-			loadNotes();
-		} catch (IOException e) {
-			addNewTab();
-		}
-		
-		panel.add(tabbedPane);
-		
-		panel.setVisible(true);
-		
-		add(tabbedPane);
+		textPane.setVisible(true);
 
-		new UpdateThread().start();
-	}
+		this.add(textPane);
 
-	private void addNewTab() {
-		tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), "Note " + (tabbedPane.getSelectedIndex() + 1));
+		loadNotes();
 
-		JTextField newTextField = new JTextField();
+		new Thread(new Runnable() {
 
-		newTextField.setSelectedTextColor(Color.YELLOW);
-		newTextField.setCaretColor(Color.YELLOW);
+			@Override
+			public void run() {
+				while (true) {
 
-		tabbedPane.addTab("Create New Note", newTextField);
-	}
+					saveNotes();
 
-	private void saveNotes() throws IOException {
-
-		FileWriter fileWriter = null;
-		try {
-			fileWriter = new FileWriter(new File(getClass().getResource("SavedNotes.txt").toURI()));
-		} catch (IOException | URISyntaxException e) {
-			e.printStackTrace();
-		}
-
-		BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-
-		for (int i = 0; i < tabbedPane.getTabCount() - 1; i++) {
-
-			bufferedWriter.write("---NEW NOTE---");
-			bufferedWriter.write(tabbedPane.getTitleAt(i));
-			bufferedWriter.newLine();
-			bufferedWriter.write(((JTextField) tabbedPane.getTabComponentAt(i)).getText());
-			bufferedWriter.newLine();
-		}
-	}
-
-	private void loadNotes() throws IOException {
-
-		FileReader fileReader = null;
-		try {
-			fileReader = new FileReader(new File(getClass().getResource("SavedNotes.txt").toURI()));
-		} catch (FileNotFoundException | URISyntaxException e) {
-			e.printStackTrace();
-		}
-
-		BufferedReader bufferedReader = new BufferedReader(fileReader);
-
-		String curLine = bufferedReader.readLine();
-
-		while (curLine != null) {
-
-			if (curLine.equals("---NEW NOTE---")) {
-				addNewTab();
-			} else {
-
-				JTextField curField = (JTextField) tabbedPane.getTabComponentAt(tabbedPane.getTabCount() - 2);
-
-				curField.setText(curField.getText() + curLine);
-			}
-		}
-	}
-
-	class UpdateThread extends Thread {
-
-		@Override
-		public void run() {
-			while (tabbedPane.getTabCount() > 0) {
-
-				if (tabbedPane.getSelectedIndex() == tabbedPane.getTabCount() - 1) {
-					addNewTab();
-				}
-
-				if (autoDelete.getValue()) {
-
-					for (int i = 0; i < tabbedPane.getTabCount() - 1; i++) {
-						if (i != tabbedPane.getSelectedIndex()
-								&& ((JTextField) tabbedPane.getTabComponentAt(i)).getText().equals("")) {
-							
-							tabbedPane.removeTabAt(i);
-							i--;
-							
-							for (int j = i; j < tabbedPane.getTabCount() - 1; j++) {
-								JTextField curText = (JTextField) tabbedPane.getSelectedComponent();
-							
-								tabbedPane.insertTab("Note " + j, null, curText, null, j);
-								tabbedPane.removeTabAt(j + 1);
-							}
-						}
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
 				}
-
-				try {
-					saveNotes();
-				} catch (IOException e) {
-				}
-
-				panel.repaint();
-
-				try {
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
-				}
 			}
+		}).start();
+	}
+
+	private void loadNotes() {
+		File loadFile = null;
+
+		try {
+			loadFile = new File(getClass().getResource("/SavedNote-" + UID + ".txt").toURI());
+		} catch (URISyntaxException | NullPointerException e) {
+			e.printStackTrace();
+			return;
+		}
+
+		Object loaded = null;
+
+		FileInputStream f_in;
+		try {
+
+			f_in = new FileInputStream(loadFile.getCanonicalPath());
+			ObjectInputStream obj_in = new ObjectInputStream(f_in);
+
+			loaded = obj_in.readObject();
+			obj_in.close();
+
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		Notepad casted = (Notepad) loaded;
+
+		textPane = casted.textPane;
+	}
+
+	private void saveNotes() {
+
+		File saveDir = null;
+
+		try {
+			saveDir = new File(getClass().getResource("/").toURI());
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			
+			System.out.println("Path: " + getClass().getResource("/"));
+			
+		}
+
+		try {
+
+			FileOutputStream fos = new FileOutputStream(saveDir.getCanonicalPath() + "/SavedNote-" + UID + ".txt");
+			ObjectOutputStream oos = new ObjectOutputStream(fos);
+
+			oos.writeObject(this);
+			oos.close();
+
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }
