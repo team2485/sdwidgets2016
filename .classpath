@@ -8,6 +8,6 @@
 	<classpathentry kind="lib" path="lib/JNativeHook.jar"/>
 	<classpathentry kind="lib" path="lib/networktables-desktop.jar"/>
 	<classpathentry kind="lib" path="lib/SmartDashboard.jar"/>
-	<classpathentry kind="lib" path="lib/opencv/build/java/opencv-310.jar"/>
+	<classpathentry kind="lib" path="lib/opencv-310.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
