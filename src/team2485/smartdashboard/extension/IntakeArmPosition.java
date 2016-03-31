@@ -97,10 +97,36 @@ public class IntakeArmPosition extends Widget {
 		g2d.setFont(new Font("BOOMBOX", Font.PLAIN, 35));
 
 		FontMetrics fontMetrics = g2d.getFontMetrics();
+		
+		boolean isOnFloor = false;
+		if (floorPos > 0.1) {
+			if (curAngle < floorPos
+					&& Math.abs(curAngle - floorPos) < 0.1) {
+				isOnFloor = true;
+			}
+		} else {
+			if (curAngle < floorPos
+					|| Math.abs((curAngle - 1) - floorPos) < 0.1) {
+				isOnFloor = true;
+			}
+		}
 
-		if (curAngle < floorPos + MAX_ERROR) {
+		boolean isFullUp = false;
+		if (upPos < 0.9) {
+			if (curAngle > upPos
+					&& Math.abs(curAngle - upPos) < 0.1) {
+				isFullUp = true;
+			}
+		} else {
+			if (curAngle > upPos
+					|| Math.abs((curAngle + 1) - upPos) < 0.1) {
+				isFullUp = true;
+			}
+		}
+
+		if (isOnFloor) {
 			g2d.drawString("ON FLOOR", 10, getHeight() - 10);
-		} else if (curAngle > upPos + MAX_ERROR) {
+		} else if (isFullUp) {
 			g2d.drawString("FULL BACK", getWidth() - fontMetrics.stringWidth("FULL BACK") - 10,
 					fontMetrics.getHeight());
 		}

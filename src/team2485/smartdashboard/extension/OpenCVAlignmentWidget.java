@@ -30,6 +30,8 @@ import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.tables.ITable;
 
 public class OpenCVAlignmentWidget extends VideoStreamViewerExtension {
+	
+	public static final String NAME = "OpenCV Alignment Widget";
 
 	@Override
 	public void propertyChanged(Property arg0) {

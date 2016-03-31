@@ -9,6 +9,8 @@ import edu.wpi.first.smartdashboard.gui.elements.VideoStreamViewerExtension;
 import edu.wpi.first.smartdashboard.properties.NumberProperty;
 
 public class AlignmentWidget extends VideoStreamViewerExtension {
+	
+	public static final String NAME = "Logicless Alignment Widget";
 
 	NumberProperty linePos = new NumberProperty(this, "Line Location", 0.75);
 
