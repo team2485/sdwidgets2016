@@ -110,7 +110,7 @@ public class RPMWidget extends Widget{
 		rectBarY = (hght -(hght-((hght/numTicks)*rpm/(maxRPM/numTicks))))+2;
 		text = new Font("Consolas", Font.BOLD, (int)(17*scale));
 		transGreen = Color.GREEN;//new Color(0, 255, 0, 180);
-		this.getParent().setBackground(Color.BLACK);
+//		this.getParent().setBackground(Color.BLACK);
 		g.setColor(Color.GREEN);
 		g.setFont(text);
 		g.drawRect(x, y, (int)(wth), (int)(hght));

@@ -102,7 +102,7 @@ public class SampleStaticWidget extends StaticWidget {
         //putting the counter at the end of the main text
         
         
-        this.getParent().setBackground(new Color(0x111111));//Sets Background color to black
+//        this.getParent().setBackground(new Color(0x111111));//Sets Background color to black
     }
 
     @Override

@@ -58,7 +58,7 @@ public class AirTankWidget extends Widget {
         this.setMaximumSize(new Dimension(4000, 2000));
         this.setValue(10);
         
-        this.getParent().setBackground(new Color(0x111111));//Sets Background color to black
+//        this.getParent().setBackground(new Color(0x111111));//Sets Background color to black
 
         new Thread(new Runnable() {
             @Override

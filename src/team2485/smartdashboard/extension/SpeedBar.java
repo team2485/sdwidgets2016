@@ -99,7 +99,7 @@ public class SpeedBar extends Widget{
 		tickSpacing = hght/20;
 		rectBarY = (hght -(hght-((hght/20)*speed)))+2;
 		text = new Font("Consolas", Font.BOLD, (int)(17*scale));
-		this.getParent().setBackground(Color.BLACK);
+//		this.getParent().setBackground(Color.BLACK);
 		transGreen = Color.GREEN;//new Color(0, 255, 0, 180);
 		g.setColor(Color.GREEN);
 		g.setFont(text);

@@ -115,6 +115,6 @@ public class LidarScanner extends Widget {
     	double lineY = Math.cos(lineAngle)*width/2 + width/2;
 	    g.drawLine(width/2, width/2, (int)lineX, (int)lineY); 
 	    g.drawOval(0, 0, width, width);
-		this.getParent().setBackground(new Color(0x111111));//Sets Background color to black
+//		this.getParent().setBackground(new Color(0x111111));//Sets Background color to black
 	}
 }
