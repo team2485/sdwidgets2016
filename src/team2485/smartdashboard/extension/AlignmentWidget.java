@@ -29,6 +29,8 @@ public class AlignmentWidget extends VideoStreamViewerExtension {
 	private boolean saveImage;
 
 	private long matchTime;
+	
+	private boolean increaseFPS;
 
 	@Override
 	public void init() {
@@ -43,6 +45,8 @@ public class AlignmentWidget extends VideoStreamViewerExtension {
 				saveImage = true;
 			}
 		}, 10 * 1000, 500);
+		
+		increaseFPS = false;
 	}
 
 	@Override
@@ -84,14 +88,29 @@ public class AlignmentWidget extends VideoStreamViewerExtension {
 		frameg2d.drawLine((int) (linePosLong.getValue().intValue() * widthRatio), (int) (100 * heightRatio),
 				(int) (linePosLong.getValue().intValue() * widthRatio), getHeight());
 
-		if (saveImage) {
+		try {
+			if(NetworkTable.getTable("SmartDashboard").getBoolean("Increase Recording FPS", false)) {
+				increaseFPS = true;
+				new Timer().schedule(new TimerTask() {
+					
+					@Override
+					public void run() {
+						increaseFPS = false;
+						NetworkTable.getTable("SmartDashboard").putBoolean("Increase Recording FPS", false);
+					}
+				}, 3000);
+			}
+		} catch (TableKeyNotDefinedException e) {
+			increaseFPS = false;
+		}
+		
+		if (saveImage || increaseFPS) {
 			try {
 				saveImage(image);
 			} catch (Exception e) {
 
 			}
 		}
-
 	}
 
 	private void saveImage(BufferedImage img) throws Exception {
@@ -111,7 +130,7 @@ public class AlignmentWidget extends VideoStreamViewerExtension {
 			return;
 		}
 
-		long curTimeInMatch = (System.currentTimeMillis() - matchTime) / 100;
+		long curTimeInMatch = (System.currentTimeMillis() - matchTime);
 
 		ImageIO.write(img, "png", new File(output, "Capture-" + curTimeInMatch));
 	}
