@@ -26,11 +26,14 @@ public class AlignmentWidget extends VideoStreamViewerExtension {
 
 	public final BooleanProperty pullFromNetwork = new BooleanProperty(this, "Match Lines From Trim", true);
 
-	private boolean saveImage;
+	private Timer saveTimer;
+	private TimerTask timerTask;
+	private Timer increaseFPSTimer;
 
+	private boolean saveImage;
 	private long matchTime;
-	
 	private boolean increaseFPS;
+	private boolean dearGodStop;
 
 	@Override
 	public void init() {
@@ -38,15 +41,18 @@ public class AlignmentWidget extends VideoStreamViewerExtension {
 
 		matchTime = System.currentTimeMillis();
 
-		new Timer().scheduleAtFixedRate(new TimerTask() {
-
+		timerTask = new TimerTask() {
 			@Override
 			public void run() {
 				saveImage = true;
 			}
-		}, 10 * 1000, 500);
-		
+		};
+
+		saveTimer = new Timer();
+		saveTimer.scheduleAtFixedRate(timerTask, 0, 500);
+
 		increaseFPS = false;
+		dearGodStop = false;
 	}
 
 	@Override
@@ -61,9 +67,7 @@ public class AlignmentWidget extends VideoStreamViewerExtension {
 		super.paintComponent(imageg2d);
 
 		if (pullFromNetwork.getValue()) {
-
 			try {
-
 				linePosBatter.setValue(NetworkTable.getTable("SmartDashboard").getNumber("Batter Shot Alignment"));
 				linePosLong.setValue(NetworkTable.getTable("SmartDashboard").getNumber("Long Shot Alignment"));
 			} catch (TableKeyNotDefinedException e) {
@@ -89,31 +93,44 @@ public class AlignmentWidget extends VideoStreamViewerExtension {
 				(int) (linePosLong.getValue().intValue() * widthRatio), getHeight());
 
 		try {
-			if(NetworkTable.getTable("SmartDashboard").getBoolean("Increase Recording FPS", false)) {
-				increaseFPS = true;
-				new Timer().schedule(new TimerTask() {
+			if (NetworkTable.getTable("SmartDashboard").getBoolean("Increase Recording FPS", false)) {
+				if (!increaseFPS) {
+					increaseFPS = true;
+					saveTimer.cancel();
+					saveTimer.purge();
+					saveTimer.scheduleAtFixedRate(timerTask, 0, 100);
 					
-					@Override
-					public void run() {
-						increaseFPS = false;
-						NetworkTable.getTable("SmartDashboard").putBoolean("Increase Recording FPS", false);
-					}
-				}, 3000);
+					increaseFPSTimer.schedule(new TimerTask() {
+						@Override
+						public void run() {
+							increaseFPS = false;
+							saveTimer.cancel();
+							saveTimer.purge();
+							saveTimer.scheduleAtFixedRate(timerTask, 0, 500);
+						}
+					}, 3000);
+				}
 			}
 		} catch (TableKeyNotDefinedException e) {
 			increaseFPS = false;
 		}
-		
-		if (saveImage || increaseFPS) {
-			try {
-				saveImage(image);
-			} catch (Exception e) {
 
+		if (dearGodStop) {
+			if (saveImage || increaseFPS) {
+				try {
+					boolean isThereAProblem = saveImage(image);
+					
+					if (isThereAProblem) {
+						dearGodStop = true;
+					}
+				} catch (Exception e) {
+					dearGodStop = true;
+				}
 			}
 		}
 	}
 
-	private void saveImage(BufferedImage img) throws Exception {
+	private boolean saveImage(BufferedImage img) throws Exception {
 		saveImage = false;
 
 		File output = new File("C:/Users/2485/Desktop/Match-" + matchTime);
@@ -122,16 +139,18 @@ public class AlignmentWidget extends VideoStreamViewerExtension {
 			boolean good = output.mkdirs();
 
 			if (!good) {
-				return;
+				return true;
 			}
 		}
 
 		if (!output.isDirectory() || !output.canWrite()) {
-			return;
+			return true;
 		}
 
 		long curTimeInMatch = (System.currentTimeMillis() - matchTime);
 
 		ImageIO.write(img, "png", new File(output, "Capture-" + curTimeInMatch));
+		
+		return false;
 	}
 }
